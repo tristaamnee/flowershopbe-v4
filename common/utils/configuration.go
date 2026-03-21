@@ -1,25 +1,16 @@
 package utils
 
 import (
-	"encoding/json"
 	"os"
 
 	"github.com/tristaamne/flowershopbe-v4/common/db"
 )
 
-func Get() (interface{}, error) {
-	file, err := os.Open("src/configturation.json")
-	if err != nil {
-		return nil, err
+func LoadConfig() db.DatabaseConfiguration {
+	return db.DatabaseConfiguration{
+		//User:     os.Getenv("DB_USER"),
+		//Password: os.Getenv("DB_PASSWORD"),
+		Address:  os.Getenv("DB_ADDRESS"),
+		Database: os.Getenv("DB_NAME"),
 	}
-	defer file.Close()
-
-	var config db.DatabaseConfiguration
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&config)
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
 }

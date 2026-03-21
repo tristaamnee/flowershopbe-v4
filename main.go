@@ -2,38 +2,36 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-pg/pg/v10"
 	"github.com/tristaamne/flowershopbe-v4/common/db"
 	"github.com/tristaamne/flowershopbe-v4/common/ratelimit"
-	"github.com/tristaamne/flowershopbe-v4/common/utils"
-	productModel "github.com/tristaamne/flowershopbe-v4/products/model"
 	productRoute "github.com/tristaamne/flowershopbe-v4/products/route"
 )
 
 func main() {
-	r := gin.Default()
+	var uri string
+	if uri = os.Getenv("MONGODB_URI"); uri == "" {
+		log.Fatal("MONGODB_URI environment variable not set")
+	}
 
-	conf, err := utils.Get()
+	r := gin.Default()
 
 	r.Use(ratelimit.RateLimiter(10, 20))
 
-	database := db.ConnectDatabase(conf.(db.DatabaseConfiguration))
-	defer database.Close()
+	client, err := db.ConnectClient(uri)
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+	defer db.CloseDatabase(client)
 
-	createDBTables(err, database)
+	database := db.ConnectToDatabase(*client)
 
+	//production route
 	productRoute.ConfigureRoute(r, database)
 	err = r.Run(":8080")
 	if err != nil {
 		return
-	}
-}
-
-func createDBTables(err error, database *pg.DB) {
-	er := db.CreateTable(database, (*productModel.Product)(nil))
-	if er != nil {
-		log.Fatalf("Error creating table: %v", er)
 	}
 }

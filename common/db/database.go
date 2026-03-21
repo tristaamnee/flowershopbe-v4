@@ -1,47 +1,45 @@
 package db
 
 import (
+	"context"
 	"log"
+	"time"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type DatabaseConfiguration struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Address  string `json:"address"`
-	Database string `json:"database"`
-}
+func ConnectClient(uri string) (client *mongo.Client, err error) {
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
-func ConnectDatabase(config DatabaseConfiguration) *pg.DB {
-	opts := &pg.Options{
-		User:     config.User,
-		Password: config.Password,
-		Addr:     config.Address,
-		Database: config.Database,
-	}
-	return pg.Connect(opts)
-}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-func CreateTable(db *pg.DB, model interface{}) error {
-	err := db.Model(model).CreateTable(&orm.CreateTableOptions{
-		IfNotExists: true,
-		Temp:        false,
-	})
+	client, err = mongo.Connect(ctx, opts)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
-func CloseDatabase(db *pg.DB) {
-	if db == nil {
-		return
-	}
+func ConnectToDatabase(client mongo.Client) *mongo.Database {
+	return client.Database("flowershop")
+}
 
-	err := db.Close()
+func CloseDatabase(client *mongo.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := client.Disconnect(ctx)
 	if err != nil {
-		log.Printf("Error closing database: %v", err)
+		log.Printf("Failed to disconnect from database: %v", err)
+	} else {
+		log.Printf("Disconnected from database")
 	}
 }

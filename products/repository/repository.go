@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"github.com/go-pg/pg/v10"
 	base "github.com/tristaamne/flowershopbe-v4/common/repository"
-	"github.com/tristaamne/flowershopbe-v4/products/model"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetByCategory(db *pg.DB, category string) (*[]*model.Product, error) {
-	return base.GetByCondition[model.Product](db, model.ColCategory, category)
+func GetByCategory(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) (interface{}, error) {
+	return base.GetByCondition(coll, filter, opts)
 }

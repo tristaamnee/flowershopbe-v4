@@ -1,17 +1,41 @@
 package repository
 
 import (
+	"context"
 	"log"
+	"time"
 
-	"github.com/go-pg/pg/v10"
+	"github.com/tristaamne/flowershopbe-v4/common/utils"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetByCondition[T interface{}](db *pg.DB, column string, value any) (*[]*T, error) {
-	data := new([]*T)
-	err := db.Model(data).Where("? = ANY(?)", pg.Ident(column), value).Select()
+func GetByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) (interface{}, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := coll.Find(ctx, filter, opts)
 	if err != nil {
-		log.Println("error getting data from %v ", column, ": %v", err)
 		return nil, err
 	}
-	return data, nil
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		er := cursor.Close(ctx)
+		if er != nil {
+			log.Printf("Error while closing the cursor: %v", er)
+		}
+	}(cursor, ctx)
+
+	var data []bson.M
+
+	if err = cursor.All(ctx, &data); err != nil {
+		return nil, err
+	}
+	result, err := utils.ConvertBsonToJson(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
