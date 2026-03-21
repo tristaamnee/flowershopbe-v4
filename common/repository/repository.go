@@ -39,3 +39,7 @@ func GetByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOpt
 
 	return result, nil
 }
+
+func Create(coll *mongo.Collection, data interface{}) (interface{}, error) {
+	return coll.InsertOne(context.Background(), data)
+}

@@ -10,3 +10,7 @@ import (
 func GetByCategory(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) (interface{}, error) {
 	return base.GetByCondition(coll, filter, opts)
 }
+
+func CreateAProduct(coll *mongo.Collection, data interface{}) (interface{}, error) {
+	return base.Create(coll, data)
+}
