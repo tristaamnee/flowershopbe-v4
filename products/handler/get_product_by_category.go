@@ -15,7 +15,7 @@ func GetProductByCategory(coll *mongo.Collection) gin.HandlerFunc {
 		filter := bson.M{}
 		opts := options.Find()
 
-		category := c.Query("category")
+		category := c.Query("categories")
 		pageStr := c.DefaultQuery("page", "1")
 		limitStr := c.DefaultQuery("limit", "10")
 		sortField := c.DefaultQuery("sortField", "date_ordered")

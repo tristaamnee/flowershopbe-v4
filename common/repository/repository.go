@@ -2,17 +2,17 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
-	"github.com/tristaamne/flowershopbe-v4/common/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) (interface{}, error) {
-
+func GetByCondition[T any](coll *mongo.Collection, filter bson.M, opts *options.FindOptions) ([]T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -21,25 +21,53 @@ func GetByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOpt
 		return nil, err
 	}
 	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		er := cursor.Close(ctx)
-		if er != nil {
-			log.Printf("Error while closing the cursor: %v", er)
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Fatalf("Error when close cursor in GetByCondition: %v", err)
+			return
 		}
 	}(cursor, ctx)
 
-	var data []bson.M
-
-	if err = cursor.All(ctx, &data); err != nil {
-		return nil, err
-	}
-	result, err := utils.ConvertBsonToJson(data)
-	if err != nil {
+	var results []T
+	if err := cursor.All(ctx, &results); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return results, nil
 }
 
-func Create(coll *mongo.Collection, data interface{}) (interface{}, error) {
-	return coll.InsertOne(context.Background(), data)
+func Create[T any](coll *mongo.Collection, data T) (primitive.ObjectID, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	result, err := coll.InsertOne(ctx, data)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+
+	id, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return primitive.ObjectID{}, errors.New("fail to convert InsertedID to primitive.ObjectID")
+	}
+	return id, nil
+}
+
+func DeleteByCondition(coll *mongo.Collection, filter bson.M, opts *options.DeleteOptions) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := coll.DeleteOne(ctx, filter, opts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateByCondition[T any](coll *mongo.Collection, filter bson.M, data T) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := coll.UpdateOne(ctx, filter, bson.M{"$set": data})
+	if err != nil {
+		return err
+	}
+	return nil
 }
