@@ -9,6 +9,8 @@ import (
 func ConfigureRoute(r *gin.Engine, db *mongo.Database) {
 	coll := db.Collection("products")
 	r.POST("/products", handler.CreateNewProduct(coll))
-	r.GET("/products/:category", handler.GetProductByCategory(coll))
+	r.PATCH("/products/:id", handler.UpdateProduct(coll))
+	r.GET("/products", handler.GetProductByCategory(coll))
+	r.GET("/products/:id", handler.GetProductByID(coll))
 	r.DELETE("/products/:id", handler.DeleteProductByID(coll))
 }
