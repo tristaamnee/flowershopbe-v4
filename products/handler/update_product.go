@@ -21,7 +21,7 @@ func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
 			return
 		}
 
-		var req model.UpdateProductRequest
+		var req model.CreateProductRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
