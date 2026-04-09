@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) ([]model.Product, error) {
+func GetProductByCondition(coll *mongo.Collection, filter bson.M, opts *options.FindOptions) ([]model.Product, error) {
 	return base.GetByCondition[model.Product](coll, filter, opts)
 }
 

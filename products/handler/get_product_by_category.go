@@ -16,13 +16,12 @@ func GetProductByCategory(coll *mongo.Collection) gin.HandlerFunc {
 		filter := bson.M{}
 		opts := options.Find()
 
-		category := c.Query("categories")
+		category := c.Query(model.ColCategory)
 		pageStr := c.DefaultQuery("page", "1")
 		limitStr := c.DefaultQuery("limit", "10")
 		sortField := c.DefaultQuery("sortField", "date_ordered")
 		orderStr := c.DefaultQuery("order", "-1")
 
-		//just being reminded that I haven't valid these thing yet :))
 		page, err := strconv.Atoi(pageStr)
 		if err != nil || page < 1 {
 			page = 1
@@ -54,14 +53,14 @@ func GetProductByCategory(coll *mongo.Collection) gin.HandlerFunc {
 		opts.SetSort(bson.D{{sortField, order}})
 
 		if category != "" {
-			filter["categories"] = bson.M{
+			filter[model.ColCategory] = bson.M{
 				"$elemMatch": bson.M{
 					"$regex":   category,
 					"$options": "i"},
 			}
 		}
 
-		productData, err := repository.GetByCondition[model.Product](coll, filter, opts)
+		productData, err := repository.GetProductByCondition(coll, filter, opts)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": err,
