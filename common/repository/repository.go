@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,17 +19,15 @@ func GetByCondition[T any](coll *mongo.Collection, filter bson.M, opts *options.
 	if err != nil {
 		return nil, err
 	}
-	defer func(cursor *mongo.Cursor, ctx context.Context) {
-		err := cursor.Close(ctx)
-		if err != nil {
-			log.Fatalf("Error when close cursor in GetByCondition: %v", err)
-			return
-		}
-	}(cursor, ctx)
+	defer cursor.Close(ctx)
 
 	var results []T
 	if err := cursor.All(ctx, &results); err != nil {
 		return nil, err
+	}
+
+	if len(results) == 0 {
+		return nil, errors.New("no results found")
 	}
 
 	return results, nil

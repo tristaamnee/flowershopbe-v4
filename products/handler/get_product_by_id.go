@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tristaamne/flowershopbe-v4/products/model"
 	"github.com/tristaamne/flowershopbe-v4/products/repository"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,7 +27,7 @@ func GetProductByID(coll *mongo.Collection) gin.HandlerFunc {
 
 		filter["_id"] = id
 
-		productData, err := repository.GetByCondition[model.Product](coll, filter, opts)
+		productData, err := repository.GetProductByCondition(coll, filter, opts)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": err,

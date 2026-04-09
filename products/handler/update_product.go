@@ -47,20 +47,20 @@ func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
 		if req.Pictures != nil {
 			update["pictures"] = *req.Pictures
 		}
-		update["updated_at"] = time.Now()
-
 		if len(update) == 0 {
 			c.JSON(http.StatusNoContent, gin.H{
 				"message": "no field to update",
 			})
 			return
 		}
+
+		update["updated_at"] = time.Now()
 		filter := bson.M{"_id": id}
 		er := repository.UpdateAProduct(coll, filter, update)
 		if er != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error when update product: ": er.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"data": id.Hex()})
+		c.JSON(http.StatusOK, gin.H{"product has been updated": id.Hex()})
 	}
 }
