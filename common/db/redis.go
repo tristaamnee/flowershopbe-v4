@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"os"
 
 	"github.com/redis/go-redis/v9"
@@ -14,4 +15,9 @@ func InitRedis() {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
+
+	ctx := context.Background()
+	if _, err := Rdb.Ping(ctx).Result(); err != nil {
+		panic("Error when trying to connect Redis: " + err.Error())
+	}
 }
