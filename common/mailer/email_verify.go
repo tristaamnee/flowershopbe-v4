@@ -16,7 +16,7 @@ func OTPSender(ctx context.Context, userEmail string) error {
 	}
 	go func() {
 		subject := "Mã xác thực tài khoản trang Bé Bán Hoa"
-		content := "Mã OTP của bạn là: " + otpCode
+		content := "Mã OTP của bạn là: " + otpCode + " sẽ khả dụng trong 2 phút."
 		_ = EmailSender(userEmail, subject, content)
 	}()
 	return nil

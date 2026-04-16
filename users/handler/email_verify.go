@@ -38,7 +38,7 @@ func EmailVerify(coll *mongo.Collection) gin.HandlerFunc {
 			return
 		}
 
-		db.Rdb.Del(c.Request.Context(), req.Email)
+		db.SessionRdb.Del(c.Request.Context(), req.Email)
 
 		c.JSON(http.StatusOK, gin.H{"Success": "Email verify success"})
 	}

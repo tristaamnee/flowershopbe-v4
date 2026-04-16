@@ -17,19 +17,19 @@ func GenerateOTP(max int) (string, error) {
 	if n != max || err != nil {
 		return "123456", err
 	}
-	for i := 0; i < len(table); i++ {
+	for i := 0; i < len(b); i++ {
 		b[i] = table[int(b[i])%len(table)]
 	}
 	return string(b), nil
 }
 
 func SaveOTP(ctx context.Context, email string, otp string) error {
-	err := db.Rdb.Set(ctx, email, otp, 5*time.Minute).Err()
+	err := db.SessionRdb.Set(ctx, email, otp, 2*time.Minute).Err()
 	return err
 }
 
 func VerifyOTP(ctx context.Context, email string, inputOTP string) (bool, error) {
-	storedOTP, err := db.Rdb.Get(ctx, email).Result()
+	storedOTP, err := db.SessionRdb.Get(ctx, email).Result()
 	if err != nil {
 		return false, errors.New("OTP is expired / not found")
 	}
