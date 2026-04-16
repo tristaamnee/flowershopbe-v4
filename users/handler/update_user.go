@@ -67,9 +67,7 @@ func UpdateUser(coll *mongo.Collection) gin.HandlerFunc {
 		if len(req.DeliveryAddresses) > 0 {
 			setData["delivery_addresses"] = req.DeliveryAddresses
 		}
-		if req.ProfilePicture != "" {
-			setData["profile_picture"] = req.ProfilePicture
-		}
+
 		if len(setData) == 0 {
 			c.JSON(http.StatusNoContent, gin.H{
 				"message": "no field to update",

@@ -13,7 +13,6 @@ func ConfigureRoute(r *gin.Engine, db *mongo.Database) {
 	r.POST("/products", middleware.APIAuthentication(3), handler.CreateNewProduct(coll))
 	r.PATCH("/products/:id", middleware.APIAuthentication(3), handler.UpdateProduct(coll))
 	r.DELETE("/products/:id", middleware.APIAuthentication(3), handler.DeleteProductByID(coll))
-	r.GET("/products/:id", middleware.APIAuthentication(3), handler.GetProductByID(coll))
 	//public
 	r.GET("/products", handler.GetProductByCategory(coll))
 	r.GET("/products/:id", handler.GetProductByID(coll))

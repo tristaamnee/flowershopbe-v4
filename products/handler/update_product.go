@@ -44,9 +44,10 @@ func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
 		if req.Categories != nil {
 			update["categories"] = *req.Categories
 		}
-		if req.Pictures != nil {
-			update["pictures"] = *req.Pictures
+		if req.Unit != nil {
+			update["unit"] = *req.Unit
 		}
+
 		if len(update) == 0 {
 			c.JSON(http.StatusNoContent, gin.H{
 				"message": "no field to update",

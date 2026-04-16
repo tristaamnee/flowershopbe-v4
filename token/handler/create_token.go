@@ -10,6 +10,5 @@ func CreateToken(u *userModel.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return token, nil
 }

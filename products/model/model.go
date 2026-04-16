@@ -12,6 +12,7 @@ type Product struct {
 	Pictures    *[]string          `json:"pictures" bson:"pictures"`
 	PromotionID *int64             `json:"promotion_id" bson:"promotion_id"`
 	Price       *int64             `json:"price" bson:"price"`
+	Unit        *string            `json:"unit" bson:"unit"`
 	Description *string            `json:"description" bson:"description"`
 	Detail      *string            `json:"detail" bson:"detail"`
 	Categories  *[]string          `json:"categories" bson:"categories"`
@@ -26,6 +27,7 @@ type CreateProductRequest struct {
 	Description *string   `json:"description" bson:"description"`
 	Detail      *string   `json:"detail" bson:"detail"`
 	Categories  *[]string `json:"categories" bson:"categories"`
+	Unit        *string   `json:"unit" bson:"unit"`
 }
 
 const (
