@@ -1,7 +1,7 @@
 package repository
 
 import (
-	base "github.com/tristaamne/flowershopbe-v4/common/repository"
+	base "github.com/tristaamne/flowershopbe-v4/common/repository/mongodb"
 	"github.com/tristaamne/flowershopbe-v4/token/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

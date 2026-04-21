@@ -1,6 +1,7 @@
 package model
 
 import (
+	"mime/multipart"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -22,12 +23,12 @@ type User struct {
 }
 
 type UserRequest struct {
-	Name              string            `json:"name" bson:"name"`
-	Password          string            `json:"password" bson:"password"`
-	Birthday          time.Time         `json:"birthday" bson:"birthday"`
-	Email             string            `json:"email" bson:"email"`
-	DeliveryAddresses []DeliveryAddress `json:"delivery_addresses" bson:"delivery_addresses"`
-	ProfilePicture    string            `json:"profile_picture" bson:"profile_picture"`
+	Name              string                `json:"name" form:"name"`
+	Password          string                `json:"password" form:"password"`
+	Birthday          time.Time             `json:"birthday" form:"birthday" time_format:"2006-01-02"`
+	Email             string                `json:"email" form:"email"`
+	DeliveryAddresses []DeliveryAddress     `json:"delivery_addresses" form:"delivery_addresses"`
+	ProfilePicture    *multipart.FileHeader `form:"profile_picture"`
 }
 
 type LoginRequest struct {
