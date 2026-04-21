@@ -1,76 +1,30 @@
 package handler
 
 import (
-	"strconv"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tristaamne/flowershopbe-v4/products/model"
-	"github.com/tristaamne/flowershopbe-v4/products/repository"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetProductByCategory(coll *mongo.Collection) gin.HandlerFunc {
+func (h *ProductHandler) GetProductByCategory() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		filter := bson.M{}
-		opts := options.Find()
-
 		category := c.Query(model.ColCategory)
 		pageStr := c.DefaultQuery("page", "1")
 		limitStr := c.DefaultQuery("limit", "10")
 		sortField := c.DefaultQuery("sortField", "date_ordered")
 		orderStr := c.DefaultQuery("order", "-1")
 
-		page, err := strconv.Atoi(pageStr)
-		if err != nil || page < 1 {
-			page = 1
-		}
-		limit, err := strconv.Atoi(limitStr)
-		if err != nil || limit < 1 || limit > 100 {
-			limit = 10
-		}
-
-		order, err := strconv.Atoi(orderStr)
-		if err != nil || (order != 1 && order != -1) {
-			order = -1
-		}
-
-		allowedSortFields := map[string]bool{
-			"create_at": true,
-			"price":     true,
-			"name":      true,
-		}
-
-		if !allowedSortFields[sortField] {
-			sortField = "create_at"
-		}
-
-		skip := (page - 1) * limit
-
-		opts.SetLimit(int64(limit))
-		opts.SetSkip(int64(skip))
-		opts.SetSort(bson.D{{sortField, order}})
-
-		if category != "" {
-			filter[model.ColCategory] = bson.M{
-				"$elemMatch": bson.M{
-					"$regex":   category,
-					"$options": "i"},
-			}
-		}
-
-		productData, err := repository.GetProductByCondition(coll, filter, opts)
+		productData, err := h.service.GetProductByCategory(c.Request.Context(), category, pageStr, limitStr, sortField, orderStr)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"Error": err,
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error when get product using category": err.Error(),
 			})
-			return
 		}
 		c.JSON(200, gin.H{
 			"data":  productData,
-			"page":  page,
-			"limit": limit,
+			"page":  pageStr,
+			"limit": limitStr,
 		})
 	}
 }

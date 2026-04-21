@@ -39,8 +39,8 @@ func main() {
 	payOsProvider := payment.NewPayOSProvider(cfg)
 
 	//production route
-	productRoute.ConfigureRoute(r, database)
 	userRoute.ConfigureRoute(r, database)
+	productRoute.ConfigureRoute(r, database, cfg)
 	orderRoute.ConfigureOrderRoute(r, database, payOsProvider, cfg)
 
 	err = r.Run(":8080")

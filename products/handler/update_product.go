@@ -2,17 +2,13 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tristaamne/flowershopbe-v4/products/model"
-	"github.com/tristaamne/flowershopbe-v4/products/repository"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
+func (h *ProductHandler) UpdateProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idStr := c.Param("id")
 		id, err := primitive.ObjectIDFromHex(idStr)
@@ -26,45 +22,10 @@ func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-
-		update := bson.M{}
-
-		if req.Name != nil {
-			update["name"] = *req.Name
-		}
-		if req.Price != nil {
-			update["price"] = *req.Price
-		}
-		if req.Description != nil {
-			update["description"] = *req.Description
-		}
-		if req.Detail != nil {
-			update["detail"] = *req.Detail
-		}
-		if req.Categories != nil {
-			update["categories"] = *req.Categories
-		}
-		if req.Unit != nil {
-			update["unit"] = *req.Unit
-		}
-
-		if len(update) == 0 {
-			c.JSON(http.StatusNoContent, gin.H{
-				"message": "no field to update",
-			})
-			return
-		}
-
-		update["updated_at"] = time.Now()
-
-		update = bson.M{
-			"$set": update,
-		}
-
-		filter := bson.M{"_id": id}
-		er := repository.UpdateAProduct(coll, filter, update)
+		id, er := h.service.UpdateAProduct(c.Request.Context(), req, id)
 		if er != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error when update product: ": er.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"id": id,
+				"error when update product: ": er.Error()})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"product has been updated": id.Hex()})
