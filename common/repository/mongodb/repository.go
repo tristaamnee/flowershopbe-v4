@@ -1,4 +1,4 @@
-package repository
+package mongodb
 
 import (
 	"context"
@@ -24,10 +24,6 @@ func GetByCondition[T any](coll *mongo.Collection, filter bson.M, opts *options.
 	var results []T
 	if err := cursor.All(ctx, &results); err != nil {
 		return nil, err
-	}
-
-	if len(results) == 0 {
-		return nil, errors.New("no results found")
 	}
 
 	return results, nil

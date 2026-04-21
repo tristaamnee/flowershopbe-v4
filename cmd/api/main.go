@@ -1,23 +1,26 @@
 package main
 
 import (
+	"context"
 	"log"
-	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tristaamne/flowershopbe-v4/common/config"
 	"github.com/tristaamne/flowershopbe-v4/common/db"
+	"github.com/tristaamne/flowershopbe-v4/common/payment"
 	"github.com/tristaamne/flowershopbe-v4/common/ratelimit"
-	"github.com/tristaamne/flowershopbe-v4/common/utils"
+	orderRoute "github.com/tristaamne/flowershopbe-v4/orders/route"
 	productRoute "github.com/tristaamne/flowershopbe-v4/products/route"
 	userRoute "github.com/tristaamne/flowershopbe-v4/users/route"
 )
 
 func main() {
-	utils.LoadEnv()
-	var uri string
-	if uri = os.Getenv("MONGODB_URI"); uri == "" {
-		log.Fatal("MONGODB_URI environment variable not set")
-	}
+
+	cfg := config.LoadConfig()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	db.InitRedis()
 
@@ -25,7 +28,7 @@ func main() {
 
 	r.Use(ratelimit.RateLimiter(10, 20))
 
-	client, err := db.ConnectClient(uri)
+	client, err := db.ConnectClient(ctx, cfg.MongoDBURI)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
@@ -33,9 +36,12 @@ func main() {
 
 	database := db.ConnectToDatabase(*client)
 
+	payOsProvider := payment.NewPayOSProvider(cfg)
+
 	//production route
 	productRoute.ConfigureRoute(r, database)
 	userRoute.ConfigureRoute(r, database)
+	orderRoute.ConfigureOrderRoute(r, database, payOsProvider, cfg)
 
 	err = r.Run(":8080")
 	if err != nil {

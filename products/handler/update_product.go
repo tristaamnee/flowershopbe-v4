@@ -56,6 +56,11 @@ func UpdateProduct(coll *mongo.Collection) gin.HandlerFunc {
 		}
 
 		update["updated_at"] = time.Now()
+
+		update = bson.M{
+			"$set": update,
+		}
+
 		filter := bson.M{"_id": id}
 		er := repository.UpdateAProduct(coll, filter, update)
 		if er != nil {
