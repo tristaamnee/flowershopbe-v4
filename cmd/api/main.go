@@ -39,7 +39,7 @@ func main() {
 	payOsProvider := payment.NewPayOSProvider(cfg)
 
 	//production route
-	userRoute.ConfigureRoute(r, database)
+	userRoute.ConfigureRoute(r, database, cfg, db.SessionRdb)
 	productRoute.ConfigureRoute(r, database, cfg)
 	orderRoute.ConfigureOrderRoute(r, database, payOsProvider, cfg)
 

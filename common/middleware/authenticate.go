@@ -6,15 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/tristaamne/flowershopbe-v4/common/config"
+	"github.com/tristaamne/flowershopbe-v4/common/pagination"
 	"github.com/tristaamne/flowershopbe-v4/users/model"
-	"github.com/tristaamne/flowershopbe-v4/users/repository"
+	"github.com/tristaamne/flowershopbe-v4/users/service"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func LoginAuthenticate(coll *mongo.Collection) gin.HandlerFunc {
+func LoginAuthenticate(svc service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		email, password, hasAuth := c.Request.BasicAuth()
 		if !hasAuth {
@@ -24,9 +24,9 @@ func LoginAuthenticate(coll *mongo.Collection) gin.HandlerFunc {
 		}
 
 		filter := bson.M{model.ColEmail: email}
-		opts := options.Find()
+		pg := pagination.PaginationQuery{}
 
-		user, err := repository.GetUserByCondition(coll, filter, opts)
+		user, err := svc.GetUserByCondition(c.Request.Context(), filter, pg)
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong email or password"})
@@ -44,7 +44,7 @@ func LoginAuthenticate(coll *mongo.Collection) gin.HandlerFunc {
 	}
 }
 
-func APIAuthentication(roleRequire int64) gin.HandlerFunc {
+func APIAuthentication(cfg *config.Config, roleRequire int64) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -56,7 +56,7 @@ func APIAuthentication(roleRequire int64) gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("wrong signing method: %v", token.Header["alg"])
 			}
-			return []byte("secret"), nil
+			return []byte(cfg.JWTSecret), nil
 		})
 		if er != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid"})
@@ -70,7 +70,13 @@ func APIAuthentication(roleRequire int64) gin.HandlerFunc {
 			return
 		}
 
-		userRole := claims["role"].(int64)
+		rawRole, ok := claims["role"].(float64)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Can't parse token"})
+			c.Abort()
+			return
+		}
+		userRole := int64(rawRole)
 		if userRole < roleRequire {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Not enough permission"})
 			c.Abort()

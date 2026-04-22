@@ -2,16 +2,30 @@ package jwt
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/tristaamne/flowershopbe-v4/common/config"
 	"github.com/tristaamne/flowershopbe-v4/users/model"
 )
 
-func GenerateToken(user *model.User) (string, error) {
+type jwtSrv struct {
+	cfg *config.Config
+}
 
-	secret := os.Getenv("JWT_SECRET")
+type JwtSrv interface {
+	GenerateToken(user *model.User) (string, error)
+}
+
+func NewJwtSrv(cfg *config.Config) JwtSrv {
+	return &jwtSrv{
+		cfg: cfg,
+	}
+}
+
+func (j *jwtSrv) GenerateToken(user *model.User) (string, error) {
+
+	secret := j.cfg.JWTSecret
 	if secret == "" {
 		return "", errors.New("JWT_SECRET environment variable is not set")
 	}

@@ -16,6 +16,8 @@ type Config struct {
 	PayOSApiKey    string
 	PayOSChecksum  string
 	CloudinaryURL  string
+	SMTPHOST       string
+	SMTPPORT       string
 }
 
 func LoadConfig() *Config {
@@ -33,6 +35,8 @@ func LoadConfig() *Config {
 		PayOSApiKey:    getEnv("PAYOS_API_KEY"),
 		PayOSChecksum:  getEnv("PAYOS_CHECKSUM"),
 		CloudinaryURL:  getEnv("CLOUDINARY_URL"),
+		SMTPHOST:       getEnv("SMTP_HOST"),
+		SMTPPORT:       getEnv("SMTP_PORT"),
 	}
 	return cfg
 }

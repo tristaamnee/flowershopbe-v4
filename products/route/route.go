@@ -17,9 +17,9 @@ func ConfigureRoute(r *gin.Engine, db *mongo.Database, cfg *config.Config) {
 	prodHandler := handler.NewProductHandler(prodSvc)
 
 	//admin
-	r.POST("/products", middleware.APIAuthentication(3), prodHandler.CreateNewProduct())
-	r.DELETE("/products/:id", middleware.APIAuthentication(3), prodHandler.DeleteProductByID())
-	r.PATCH("/products/:id", middleware.APIAuthentication(3), prodHandler.UpdateProduct())
+	r.POST("/products", middleware.APIAuthentication(cfg, 3), prodHandler.CreateNewProduct())
+	r.DELETE("/products/:id", middleware.APIAuthentication(cfg, 3), prodHandler.DeleteProductByID())
+	r.PATCH("/products/:id", middleware.APIAuthentication(cfg, 3), prodHandler.UpdateProduct())
 
 	//public
 	r.GET("/products", prodHandler.GetProductByCategory())
