@@ -20,17 +20,17 @@ func NewMongoOrderRepository(coll *mongo.Collection) OrderRepository {
 }
 
 func (r *orderRepo) GetByCondition(ctx context.Context, filter bson.M, opts *options.FindOptions) ([]model.Order, error) {
-	return base.GetByCondition[model.Order](r.coll, filter, opts)
+	return base.GetByCondition[model.Order](ctx, r.coll, filter, opts)
 }
 
 func (r *orderRepo) CreateAOrder(ctx context.Context, data *model.Order) (primitive.ObjectID, error) {
-	return base.Create(r.coll, data)
+	return base.Create(ctx, r.coll, data)
 }
 
 func (r *orderRepo) DeleteAOrder(ctx context.Context, filter bson.M, opts *options.DeleteOptions) error {
-	return base.DeleteByCondition(r.coll, filter, opts)
+	return base.DeleteByCondition(ctx, r.coll, filter, opts)
 }
 
 func (r *orderRepo) UpdateAOrder(ctx context.Context, filter bson.M, data bson.M) error {
-	return base.UpdateByCondition(r.coll, filter, data)
+	return base.UpdateByCondition(ctx, r.coll, filter, data)
 }

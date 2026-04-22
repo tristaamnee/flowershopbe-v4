@@ -4,14 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tristaamne/flowershopbe-v4/products/repository"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func DeleteProductByID(coll *mongo.Collection) gin.HandlerFunc {
+func (h *ProductHandler) DeleteProductByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idStr := c.Param("id")
 		id, err := primitive.ObjectIDFromHex(idStr)
@@ -19,15 +15,9 @@ func DeleteProductByID(coll *mongo.Collection) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid product id"})
 			return
 		}
-		filter := bson.M{"_id": id}
-		opts := options.Delete()
-
-		err = repository.DeleteAProduct(coll, filter, opts)
+		err = h.service.DeleteProductByID(c.Request.Context(), id)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"Error when delete product: ": err.Error(),
-			})
-			return
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"Message": "product deleted successfully",

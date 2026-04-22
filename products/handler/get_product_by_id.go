@@ -4,17 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tristaamne/flowershopbe-v4/products/repository"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetProductByID(coll *mongo.Collection) gin.HandlerFunc {
+func (h *ProductHandler) GetProductByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		filter := bson.M{}
-		opts := options.Find().SetLimit(1)
+
 		idStr := c.Param("id")
 		id, err := primitive.ObjectIDFromHex(idStr)
 
@@ -24,18 +19,15 @@ func GetProductByID(coll *mongo.Collection) gin.HandlerFunc {
 			})
 			return
 		}
-
-		filter["_id"] = id
-
-		productData, err := repository.GetProductByCondition(coll, filter, opts)
+		productData, err := h.service.GetProductByID(c.Request.Context(), id)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"Error": err,
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"msg": err.Error(),
 			})
 			return
 		}
 		if len(productData) == 0 {
-			c.JSON(http.StatusNotFound, gin.H{
+			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": "Product not found",
 			})
 			return

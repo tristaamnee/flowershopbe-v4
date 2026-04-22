@@ -11,8 +11,8 @@ import (
 )
 
 func ConfigureOrderRoute(r *gin.Engine, db *mongo.Database, payOsProvider payment.PaymentProvider, cfg *config.Config) {
-
-	orderRepo := repository.NewMongoOrderRepository(db.Collection("orders"))
+	coll := db.Collection("orders")
+	orderRepo := repository.NewMongoOrderRepository(coll)
 	orderSvc := service.NewService(orderRepo, payOsProvider, cfg)
 	orderHandler := handler.NewOrderHandler(orderSvc)
 
@@ -21,5 +21,3 @@ func ConfigureOrderRoute(r *gin.Engine, db *mongo.Database, payOsProvider paymen
 		orderGroup.POST("/checkout", orderHandler.CheckOut())
 	}
 }
-
-//cai nay refactor xong, con 3 cai nua :))))

@@ -3,18 +3,17 @@ package mailer
 import (
 	"errors"
 	"net/smtp"
-	"os"
 )
 
-func EmailSender(receiver string, subject string, content string) error {
-	shopEmailUsername := os.Getenv("GMAIL_EMAIL")
-	shopEmailPassword := os.Getenv("GMAIL_EMAIL_PASSWORD")
+func (m *mailer) EmailSender(receiver string, subject string, content string) error {
+	shopEmailUsername := m.cfg.GmailEmail
+	shopEmailPassword := m.cfg.GmailEmailPass
 	if shopEmailUsername == "" {
 		return errors.New("Shop gmail variable not set")
 	}
 
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	smtpHost := m.cfg.SMTPHOST
+	smtpPort := m.cfg.SMTPPORT
 
 	auth := smtp.PlainAuth("", shopEmailUsername, shopEmailPassword, smtpHost)
 

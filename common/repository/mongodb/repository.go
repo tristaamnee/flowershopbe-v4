@@ -3,7 +3,6 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,9 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetByCondition[T any](coll *mongo.Collection, filter bson.M, opts *options.FindOptions) ([]T, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func GetByCondition[T any](ctx context.Context, coll *mongo.Collection, filter bson.M, opts *options.FindOptions) ([]T, error) {
 
 	cursor, err := coll.Find(ctx, filter, opts)
 	if err != nil {
@@ -29,9 +26,7 @@ func GetByCondition[T any](coll *mongo.Collection, filter bson.M, opts *options.
 	return results, nil
 }
 
-func Create[T any](coll *mongo.Collection, data T) (primitive.ObjectID, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func Create[T any](ctx context.Context, coll *mongo.Collection, data T) (primitive.ObjectID, error) {
 
 	result, err := coll.InsertOne(ctx, data)
 	if err != nil {
@@ -45,9 +40,8 @@ func Create[T any](coll *mongo.Collection, data T) (primitive.ObjectID, error) {
 	return id, nil
 }
 
-func DeleteByCondition(coll *mongo.Collection, filter bson.M, opts *options.DeleteOptions) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func DeleteByCondition(ctx context.Context, coll *mongo.Collection, filter bson.M, opts *options.DeleteOptions) error {
+
 	_, err := coll.DeleteOne(ctx, filter, opts)
 	if err != nil {
 		return err
@@ -55,9 +49,8 @@ func DeleteByCondition(coll *mongo.Collection, filter bson.M, opts *options.Dele
 	return nil
 }
 
-func UpdateByCondition[T any](coll *mongo.Collection, filter bson.M, data T) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func UpdateByCondition[T any](ctx context.Context, coll *mongo.Collection, filter bson.M, data T) error {
+
 	_, err := coll.UpdateOne(ctx, filter, bson.M{"$set": data})
 	if err != nil {
 		return err

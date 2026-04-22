@@ -31,11 +31,11 @@ type Service interface {
 func (s *service) Checkout(ctx context.Context, req model.OrderRequest) (map[string]interface{}, error) {
 
 	if len(req.OrderItems) == 0 {
-		return nil, fmt.Errorf("Cart is empty")
+		return nil, fmt.Errorf("cart is empty")
 	}
 
 	if len(req.DeliveryAddress.Phone) < 5 {
-		return nil, fmt.Errorf("Invalid phone number")
+		return nil, fmt.Errorf("invalid phone number")
 	}
 
 	var totalPrice int64
