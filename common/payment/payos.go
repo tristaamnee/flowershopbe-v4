@@ -2,12 +2,14 @@ package payment
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/tristaamne/flowershopbe-v4/common/config"
 )
 
@@ -15,14 +17,16 @@ type payOSProvider struct {
 	// chinh lai may cai anh huong
 	cfg    *config.Config
 	client *http.Client
+	rdb    *redis.Client
 }
 
-func NewPayOSProvider(cfg *config.Config) PaymentProvider {
+func NewPayOSProvider(cfg *config.Config, rdb *redis.Client) PaymentProvider {
 	return &payOSProvider{
 		cfg: cfg,
 		client: &http.Client{
 			Timeout: time.Second * 10,
 		},
+		rdb: rdb,
 	}
 }
 
@@ -68,21 +72,21 @@ type CancelPaymentRequest struct {
 	CancellationReason string `json:"cancellation_reason"`
 }
 
-func PaymentVerify() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var body PayOSWebhookBody
-		if err := c.ShouldBindJSON(&body); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
-			return
+func (p *payOSProvider) CheckWebhookSignature(ctx context.Context, body PayOSWebhookBody) error {
+	if body.Success {
+		orderCode := body.Code
+		storedSignature, err := p.rdb.Get(ctx, orderCode).Result()
+		if err != nil {
+			return err
 		}
-
-		if body.Success {
-			//kiem tra signature
-			//kiem tra ton kho ( tru ton kho )
+		if storedSignature != body.Signature {
+			return errors.New("invalid signature")
 		}
-
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		return nil
 	}
+
+	return errors.New("payment not success")
+
 }
 
 func (p *payOSProvider) CreatePaymentLink(payload interface{}) (map[string]interface{}, error) {
