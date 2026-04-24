@@ -9,7 +9,7 @@ func (m *mailer) EmailSender(receiver string, subject string, content string) er
 	shopEmailUsername := m.cfg.GmailEmail
 	shopEmailPassword := m.cfg.GmailEmailPass
 	if shopEmailUsername == "" {
-		return errors.New("Shop gmail variable not set")
+		return errors.New("shop Gmail variable not set")
 	}
 
 	smtpHost := m.cfg.SMTPHOST

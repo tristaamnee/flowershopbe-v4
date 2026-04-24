@@ -36,12 +36,12 @@ func main() {
 
 	database := db.ConnectToDatabase(*client)
 
-	payOsProvider := payment.NewPayOSProvider(cfg)
+	paymentProvider := payment.NewPayOSProvider(cfg, db.PaymentRdb)
 
 	//production route
 	userRoute.ConfigureRoute(r, database, cfg, db.SessionRdb)
 	productRoute.ConfigureRoute(r, database, cfg)
-	orderRoute.ConfigureOrderRoute(r, database, payOsProvider, cfg)
+	orderRoute.ConfigureOrderRoute(r, database, paymentProvider, cfg, db.SessionRdb)
 
 	err = r.Run(":8080")
 	if err != nil {

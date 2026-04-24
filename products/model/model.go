@@ -12,7 +12,8 @@ type Product struct {
 	Pictures    *[]string          `json:"pictures" bson:"pictures"`
 	PromotionID *int64             `json:"promotion_id" bson:"promotion_id"`
 	Price       *int64             `json:"price" bson:"price"`
-	Unit        *string            `json:"unit" bson:"unit"`
+	Quantity    *uint64            `json:"quantity" bson:"quantity"`
+	Unit        string             `json:"unit" bson:"unit"`
 	Description *string            `json:"description" bson:"description"`
 	Detail      *string            `json:"detail" bson:"detail"`
 	Categories  *[]string          `json:"categories" bson:"categories"`
@@ -24,6 +25,7 @@ type CreateProductRequest struct {
 	Name        *string   `json:"name" bson:"name"`
 	Pictures    *[]string `json:"pictures" bson:"pictures"`
 	Price       *int64    `json:"price" bson:"price"`
+	Quantity    *uint64   `json:"quantity" bson:"quantity"`
 	Description *string   `json:"description" bson:"description"`
 	Detail      *string   `json:"detail" bson:"detail"`
 	Categories  *[]string `json:"categories" bson:"categories"`

@@ -13,13 +13,14 @@ func (h *ProductHandler) GetProductByID() gin.HandlerFunc {
 		idStr := c.Param("id")
 		id, err := primitive.ObjectIDFromHex(idStr)
 
+		ids := append([]primitive.ObjectID(nil), id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
 			return
 		}
-		productData, err := h.service.GetProductByID(c.Request.Context(), id)
+		productData, err := h.service.GetProductByID(c.Request.Context(), ids)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"msg": err.Error(),

@@ -77,6 +77,7 @@ func APIAuthentication(cfg *config.Config, roleRequire int64) gin.HandlerFunc {
 			return
 		}
 		userRole := int64(rawRole)
+		// 0 = normal user, 1 = favor guest, 2 = admin, 3 = master
 		if userRole < roleRequire {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Not enough permission"})
 			c.Abort()
