@@ -12,7 +12,7 @@ func CheckOwner() gin.HandlerFunc {
 		userRole, _ := c.Get("userRole")
 		reqIDStr := c.Param("id")
 
-		if userIDFromToken.(string) == reqIDStr || userRole.(int) == 3 {
+		if userIDFromToken.(string) == reqIDStr || userRole.(float64) == 3 {
 			c.Next()
 			return
 		}

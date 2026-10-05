@@ -18,15 +18,20 @@ type Config struct {
 	CloudinaryURL  string
 	SMTPHOST       string
 	SMTPPORT       string
+	PORT           string
 }
 
 func LoadConfig() *Config {
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "127.0.0.1:6379"
+	}
 	cfg := &Config{
 		APIAddr:        getEnv("API_ADDR"),
 		FEAddr:         getEnv("FE_ADDR"),
 		MongoDBURI:     getEnv("MONGODB_URI"),
 		JWTSecret:      getEnv("JWT_SECRET"),
-		RedisAddr:      getEnv("REDIS_ADDR"),
+		RedisAddr:      redisAddr,
 		RedisPass:      getEnv("REDIS_PASSWORD"),
 		GmailEmail:     getEnv("GMAIL_EMAIL"),
 		GmailEmailPass: getEnv("GMAIL_EMAIL_PASSWORD"),
@@ -37,6 +42,7 @@ func LoadConfig() *Config {
 		CloudinaryURL:  getEnv("CLOUDINARY_URL"),
 		SMTPHOST:       getEnv("SMTP_HOST"),
 		SMTPPORT:       getEnv("SMTP_PORT"),
+		PORT:           getEnv("PORT"),
 	}
 	return cfg
 }

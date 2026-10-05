@@ -13,7 +13,7 @@ func (h *UserHandler) Login() gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Login context missing"})
 			return
 		}
-		tokenString, err := h.service.Login(c.Request.Context(), req)
+		tokenString, err := h.service.Login(req)
 		if err != nil || tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed", "reason": err.Error()})
 			return

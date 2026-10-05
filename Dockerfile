@@ -8,22 +8,20 @@ WORKDIR /app
 # copy dependency files trước để cache
 COPY go.mod go.sum ./
 RUN go mod download
-
-# copy source code
 COPY . .
-
 # build binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/api/main.go
 
 # --------------------
 # RUNTIME STAGE
 # --------------------
 FROM alpine:latest
 
-WORKDIR /app
+WORKDIR /root/
 
-# copy binary từ build stage
 COPY --from=builder /app/app .
+
+# Không chép .env vào image: biến môi trường được truyền lúc chạy (docker compose env_file / môi trường triển khai).
 
 EXPOSE 8080
 

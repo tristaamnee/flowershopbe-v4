@@ -22,7 +22,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	db.InitRedis()
+	db.InitRedis(cfg)
 
 	r := gin.Default()
 
@@ -43,7 +43,12 @@ func main() {
 	productRoute.ConfigureRoute(r, database, cfg)
 	orderRoute.ConfigureOrderRoute(r, database, paymentProvider, cfg, db.SessionRdb)
 
-	err = r.Run(":8080")
+	port := cfg.PORT
+	if port == "" {
+		port = "8080"
+	}
+
+	err = r.Run(":" + port)
 	if err != nil {
 		return
 	}

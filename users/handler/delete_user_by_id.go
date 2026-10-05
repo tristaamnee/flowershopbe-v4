@@ -17,7 +17,7 @@ func (h *UserHandler) DeleteUserById() gin.HandlerFunc {
 			})
 			return
 		}
-		err = h.service.DeleteProductByID(c.Request.Context(), id)
+		err = h.service.DeleteUserById(c.Request.Context(), id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error when process delete product in db": err.Error(),
